@@ -1,0 +1,23 @@
+{
+  "name": "kungfuflix",
+  "version": "1.0.0",
+  "description": "Streaming Kung Fu Movies",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RajisteB/fuflix.git"
+  },
+  "author": "Raj Bennin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RajisteB/fuflix/issues"
+  },
+  "homepage": "https://github.com/RajisteB/fuflix#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "create-react-app": "^1.5.2"
+  }
+}
