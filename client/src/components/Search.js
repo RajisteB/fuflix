@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-class Search extends React.Component {
+class Search extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -19,7 +19,7 @@ class Search extends React.Component {
         let filteredMovies = this.props.movies.filter((movie) => {
             return movie.title.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1;
         })
-        console.log(filteredMovies);
+
         return (
             <div>
                 <form>
@@ -28,8 +28,9 @@ class Search extends React.Component {
                 <div>
                     {filteredMovies.map(movie => 
                         <div key={movie.id}>
-                            <img src={movie.thumbnail} height="160px" width="100px" />
+                            <img src={movie.thumbnail} height="160px" width="100px" alt=""/>
                             <p>{movie.title}</p>
+                            <p>{movie.quality}</p>
                         </div>
                     )}
                 </div>

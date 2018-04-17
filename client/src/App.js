@@ -1,61 +1,78 @@
 import React, { Component } from 'react';
-import Video from './components/Video';
 import Search from './components/Search';
 import axios from 'axios';
 import { API_KEY } from './config_keys.js'
 import './App.css';
 
-const playlistBaseUrl = 'https://www.googleapis.com/youtube/v3/playlistItems?playlistId='
-const playlistOpts = '&part=snippet&maxResults=50';
-const channel = 'UUXeFop7x3vyUAe_O7gliRkA';
+const playlistBaseUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId='
+const playlistOpts = '&maxResults=50&order=date&type=video&key='
+const channel = 'UCXeFop7x3vyUAe_O7gliRkA';
 
 //https://www.googleapis.com/youtube/v3/playlistItems?playlistId=UUXeFop7x3vyUAe_O7gliRkA&key=AIzaSyC7T-G2CrUaaEhADzXB63TvgUUA0s3yvkg&part=snippet&maxResults=50 
 
-class App extends React.Component {
+class App extends Component {
   constructor() {
     super();
     this.state = {
       data: [],
-      movies: {}
+      movies: {},
     }
   }
   
   getPlaylist = () => {
     // Youtube API get request...
-    axios.get(`${playlistBaseUrl}${channel}&key=${API_KEY}${playlistOpts}`)
+    axios.get(`${playlistBaseUrl}${channel}${playlistOpts}${API_KEY}`)
       .then(res => {
         let movies = res.data.items;
+        console.log(movies);
         let moviesData = [];
+
+        // Iterate through data response
         movies.forEach((movie, idx) => {
+          let film = movie.snippet;
+          let movieName = film.title.split('|');
+          let movieTitle = [];
+          let fullTitle = '';
 
-          // Get movie title in normal case as movie data returns title in uppercase.
-          let name = movie.snippet.title
-          let nameSplit = name.toLowerCase().split('|');
-          let movieNameSplit = nameSplit[0].split(' ');
-          let rmvMovieTitleWhteSpce = movieNameSplit.slice(0, (movieNameSplit.length - 1));
-          let title = '';
-
-          rmvMovieTitleWhteSpce.forEach((mov, idx) => {
-            if (idx !== rmvMovieTitleWhteSpce.length - 1) {
-              return title += mov.charAt(0).toUpperCase() + mov.slice(1) + ' ';
-            } else {
-              return title += mov.charAt(0).toUpperCase() + mov.slice(1);
-            }          
+          // Title case for movie titles vs all uppercase as given by data
+          let lowercaseTitle = movieName[0].split('-')[0].toLowerCase().trim().split(' ');
+          lowercaseTitle.forEach((title) => {
+            movieTitle.push(title.charAt(0).toUpperCase() + title.slice(1));
+            
           })
+          fullTitle = movieTitle.join(' ');
+
+          // Remove hyphens from description
+          let description = film.description.replace(/-/g,"");
+        
+          // Get type of quality (HD, 720, or Classics)
+          let version = movieName.pop()
+          let regex = /[a-z0-9]+$/i;
+          let quality = '';
+
+          // Changes Asian type characters to 'Classics'
+          if (!regex.test(version)) {
+            quality = 'Classics';
+          } else {
+            quality = version;
+          }
 
           // Push movie data as object to moviesData array
           moviesData.push({
             id: idx,
-            title: title,
-            description: movie.snippet.description,
-            videoId: movie.snippet.resourceId.videoId,
-            thumbnail: movie.snippet.thumbnails.standard.url
+            title: fullTitle,
+            // director: director,
+            // cast: 'director',
+            description: description,
+            quality: quality,
+            videoId: movie.id.videoId,
+            thumbnail: film.thumbnails.high.url
           })
         });
         this.setState({
-          data: moviesData
+          data: moviesData,
         })
-        console.log(this.state.data);
+        console.log(moviesData);
       }).catch(err => {
         console.log(err);
       });
@@ -67,11 +84,10 @@ class App extends React.Component {
 
 
   render() {
-    let data = this.state.data;
 
     return (
       <div>
-        <Search movies={data}/>
+        <Search movies={this.state.data}/>
       </div>
     );
   }

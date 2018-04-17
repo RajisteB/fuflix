@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
 
-class Video extends React.Component {
+class Video extends Component {
     _onReady(e) {
         e.target.playVideo();
     }
