@@ -16,6 +16,7 @@ class Single extends Component {
             likes: 0,
             dislikes: 0,
             favorites: 0,
+            stars: 0,
             duration: '',
             views: '',
             title: '',
@@ -39,8 +40,7 @@ class Single extends Component {
                 let title = details.title.split('-').pop().trim();
                 let thumbs = details.thumbnails;
                 let duration = data.contentDetails.duration;
-                let views = parseInt(stats.viewCount).toLocaleString();
-
+                let views = parseInt(stats.viewCount, 10).toLocaleString();
                 let length = duration.split('').slice(2, 7);
                 length[1] = 'Hour';
                 length[4] = 'Minutes';
@@ -48,37 +48,33 @@ class Single extends Component {
                 length[3] = length[4];
                 length.pop();
                 let videoLength = length.join(' ');
-
-                console.log(data);
-                
-
                 let localLikes = localStorage[`${data.id}-likes`];
                 let localDislikes = localStorage[`${data.id}-dislikes`];
                 let faves = localStorage[`${data.id}-favorites`];
     
-                if (localLikes > parseInt(stats.likeCount)) {
+                if (localLikes > parseInt(stats.likeCount, 10)) {
                     this.setState({
                         likes: localLikes,
                         userWillLike: false,
                     })
                 } else {
                     this.setState({
-                        likes: parseInt(stats.likeCount)
+                        likes: parseInt(stats.likeCount, 10)
                     })
                 }
 
-                if (localDislikes > parseInt(stats.dislikeCount)) {
+                if (localDislikes > parseInt(stats.dislikeCount, 10)) {
                     this.setState({
                         dislikes: localDislikes,
                         userWillLike: false,
                     })
                 } else {
                     this.setState({
-                        dislikes: parseInt(stats.dislikeCount)
+                        dislikes: parseInt(stats.dislikeCount, 10)
                     })
                 }
 
-                if (faves > parseInt(stats.favoriteCount)) {
+                if (faves > parseInt(stats.favoriteCount, 10)) {
                     let colors = document.getElementById('favorites');
                     colors.style.color = 'red';
                     this.setState({
@@ -87,13 +83,16 @@ class Single extends Component {
                     })
                 } else {
                     this.setState({
-                        favorites: parseInt(stats.favoriteCount)
+                        favorites: parseInt(stats.favoriteCount, 10)
                     })
                 }
-
+                
+                let stars = Math.floor(this.state.likes / this.state.dislikes);
+                
                 this.setState({
                     id: data.id,
                     duration: videoLength,
+                    stars: stars,
                     views: views,
                     title: title,
                     director: summary[0].trim(),
@@ -102,6 +101,8 @@ class Single extends Component {
                     image: thumbs,
                     dataLoaded: true
                 })
+
+
 
             })
 
@@ -137,6 +138,27 @@ class Single extends Component {
             })
             localStorage.setItem(`${this.state.id}-favorites`, this.state.favorites + 1);
         }
+    }
+
+    stars = (props) => {
+        let numOfStars = this.state.stars;
+        let deathStars = [];
+
+        if (numOfStars > 5) {
+            numOfStars = 5;
+        } else if (numOfStars < 0) {
+            numOfStars = 0;
+        }
+
+        for (let i=0; i < numOfStars; i++) {
+            deathStars.push(<div key={i} className="stars"></div>)
+        }
+
+        return (
+            <span>
+                {deathStars}
+            </span>
+        )
     }
 
     _onReady = (e) => {
@@ -181,6 +203,8 @@ class Single extends Component {
                             <i className="fas fa-heart fa-2x" id="favorites" onClick={this.handleUserFavorite}></i>
                             <span className="fa-layers-counter">{this.state.favorites}</span>
                         </span>
+                        <br />
+                        {this.stars()}
                         <br />
                         <span className="fa-layers fa-fw">
                             <i className="fas fa-eye fa-2x"></i>

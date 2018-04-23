@@ -1,0 +1,10 @@
+.stars {
+  background-image: url("./images/2-katanas.svg");
+  height: 50px;
+  width: 50px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: black;
+  display: inline-block; }
+
+/*# sourceMappingURL=App.css.map */

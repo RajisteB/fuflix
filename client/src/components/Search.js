@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Link, Switch, Route } from 'react-router-dom';
-//import Video from './Video';
 import axios from 'axios';
 import { Movies } from './Movies';
+import FeaturedSlideShow from './FeaturedSlideShow';
 import { API_KEY } from '../config_keys.js'
 import Single from './Single';
 
@@ -12,13 +12,15 @@ const channelId = '&channelId=UCUpbgPbDccjoB9PxI-nI7oA';
 const playlistId = '&playlistId=PLcG66PDG1cyuZBuU7eeUh4b2nGkudDFRn';
 const apiCall = `${playlistBaseUrl}${channelId}${playlistId}${key}${API_KEY}`;
 let movie = [];
+let feature = [];
 
 class Search extends Component {
     constructor(props) {
         super(props);
         this.state = {
             search: '',
-            movies: []
+            movies: [],
+            featured: []
         }
     }
 
@@ -50,11 +52,14 @@ class Search extends Component {
                     return movie;
                 })
 
+
                 if (movie.length < 300) {
                     this.getPlaylist(`${apiCall}${token}`)
                 } else {
+                    feature.push(movie.splice(movie.length - 4, movie.length - 1));
                     this.setState({
-                        movies: movie
+                        movies: movie,
+                        featured: feature[0]
                     })
                 }
             })
@@ -69,6 +74,7 @@ class Search extends Component {
 
     componentDidMount() {
         this.getPlaylist(apiCall);
+        
     }
 
     
@@ -77,36 +83,36 @@ class Search extends Component {
         let filteredMovies = this.state.movies.filter((movie) => {
             return movie.title.toLowerCase().indexOf(this.state.search.toLowerCase()) !== -1;
         })
-
+        
+        console.log(this.state.featured)
         return (
-            <div>
-                <Switch>
-                    <Route exact path="/movies" render={props => {
-                        return (
+            <Switch>
+                <Route exact path="/movies" render={props => {
+                    return (
+                        <div>
+                            <FeaturedSlideShow feature={this.state.featured}/>
+                            <p>Search Page</p>
+                            <form>
+                                <input type="text" value={this.state.search} onChange={this.updateSearch} />
+                            </form>
                             <div>
-                                <p>Search Page</p>
-                                <form>
-                                    <input type="text" value={this.state.search} onChange={this.updateSearch} />
-                                </form>
-                                <div>
-                                    {filteredMovies.map((movie, idx) =>
+                                {filteredMovies.map((movie, idx) =>
+                                    <div key={idx}>
                                         <div>
-                                            <div key={idx}>
-                                                <Link to={`/movies/${movie.videoId}`}>
-                                                    <img src={movie.image.high.url} height="160px" width="100px" alt="" />
-                                                    <p>{movie.title}</p>
-                                                    <p>{movie.quality}</p>
-                                                </Link>
-                                            </div>
+                                            <Link to={`/movies/${movie.videoId}`}>
+                                                <img src={movie.image.high.url} height="160px" width="100px" alt="" />
+                                                <p>{movie.title}</p>
+                                                <p>{movie.quality}</p>
+                                            </Link>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    } />
-                    <Route path="/movies/:id" component={Single} />
-                </Switch>
-            </div>
+                        </div>
+                    )}
+                } />
+                <Route path="/movies/:id" component={Single} />
+            </Switch>
         )
     }
 
